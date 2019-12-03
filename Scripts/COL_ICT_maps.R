@@ -83,27 +83,32 @@ oth_countries <- terrain +
 
 
 # Choropleths on top of basemaps ------------------------------------------
+source <- str_c("Author: Maps created by USAID GeoCenter     |     Source: National Administrative Department of Statistics of Colombia 2018")
 
 tvs <- 
-  ne_colombia %>% 
-  right_join(., ict$Table1, by = c("Departmento")) %>% 
-  gather(tv_stat, value, `Televisión convencional a color, LCD, plasma o LED (%)`:`Televisión a color convencional (%)`) %>% 
-  mutate(label_first = ifelse(tv_stat == "Televisión a color convencional (%)", Departmento, NA_character_)) 
+  ict$Table1 %>% 
+  gather(tv_stat, value, 2:4) %>% 
+  left_join(., ne_colombia, by = c("Departmento")) %>% 
+  mutate(label_first = ifelse(tv_stat == "Televisión a color convencional (%)", Departmento, NA_character_),
+         value = (value / 100)) 
 
   oth_countries + 
-    geom_sf(data = tvs %>% filter(tv_stat == "Televisión a color convencional (%)"), 
+    geom_sf(data = tvs, 
             aes(fill = value, geometry = geometry), size = 0.25, colour = "white") +
     geom_sf(data = col_admin0, colour = "black", fill = "NA") +
     #geom_sf_label(data = tvs, aes(label = label_first, geometry = geometry), size = 2.5) +
-    #facet_wrap(~tv_stat) +
-    scale_fill_viridis_c(option = "A", direction = -1, alpha = 0.6) +
+    facet_wrap(~tv_stat) +
+    scale_fill_viridis_c(option = "A", direction = -1, alpha = 0.6, label = scales::percent_format()) +
+    theme_minimal() +
     theme(legend.position = "top",
           axis.text = element_blank(),
           panel.grid = element_blank(),
           axis.ticks = element_blank(),
           strip.text = element_text(hjust = 0)) +
     coord_sf(xlim = mapRange[c(1:2)], ylim = mapRange[c(3:4)]) +
-    labs(x = "", y = "")
+    labs(x = "", y = "", title = "Table 1. TV Onwership by different types",
+         caption = source) 
+
 
 
 
