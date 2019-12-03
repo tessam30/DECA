@@ -107,7 +107,8 @@ tvs <-
           strip.text = element_text(hjust = 0)) +
     coord_sf(xlim = mapRange[c(1:2)], ylim = mapRange[c(3:4)]) +
     labs(x = "", y = "", title = "Table 1. TV Onwership by different types",
-         caption = source) 
+         caption = source,
+         fill = "Percent of households owning") 
 
 
 
