@@ -15,7 +15,7 @@ datapath <- "Data"
 dataout <- "Dataout"
 gispath <- "GIS"
 graphpath <- "Graphics"
-imagepath <- "Images"
+imagepath <- "Images"  
 rpath <- "Scripts"
 tableau <- "Tableau"
 
