@@ -1,7 +1,7 @@
 col_cw <- 
 tibble::tribble(
   ~DPTO_CCDGO,    ~ISO2,                                  ~Dept_geo,         ~Departmento,
-         "11",  "CO_DC",               "Distrito Capital de Bogotá",       "Bogotá, D.C.",
+         "11", "CO_CUN",               "Distrito Capital de Bogotá",       "Bogotá, D.C.",
          "91", "CO_AMA",                                 "Amazonas",           "Amazonas",
          "05", "CO_ANT",                                "Antioquia",          "Antioquia",
          "81", "CO_ARA",                                   "Arauca",             "Arauca",
