@@ -4,9 +4,9 @@
 # Notes:
 
 
-pacman::p_load(raster, sp, rgdal, rmapshaper, geojsonio)
-library("rnaturalearth")
-library("rnaturalearthdata")
+pacman::p_load(raster, sp, rgdal, rmapshaper, geojsonio, rnaturalearth, rnaturalearthdata, ggsflabel)
+#devtools::install_github("ropensci/rnaturalearthhires") # to grab polygons
+#devtools::install_github("yutannihilation/ggsflabel")
 
 # Loading ICT and shapefile to join and map -------------------------------
 
@@ -28,6 +28,9 @@ ict <-
   excel_sheets(read_path) %>%
   set_names() %>% 
   purrr::map(., ~read_excel(., path = read_path))
+
+# TODO: Fix Bogata so it merges
+
 
 # Pull in natural earth data -- clipped to colombia AOI
 world <- ne_countries(scale = "large", returnclass = "sf")
@@ -75,7 +78,7 @@ terrain <- ggplot() +
   geom_sf(data = ne_ocean_chop, fill = "aliceblue", colour = "NA") 
 
 oth_countries <- terrain + 
-  geom_sf(data = world_chop, fill = "#d9d9d9", alpha = 0.35, size = 0.5, colour = "#969696") +
+  geom_sf(data = world_chop, fill = "#d9d9d9", alpha = 0.35, size = 0.25, colour = "#969696") +
   coord_sf(xlim = mapRange[c(1:2)], ylim = mapRange[c(3:4)]) 
   #geom_sf_text(data = world_chop, aes(label = sovereignt)) +
   #geom_sf(data = col_admin0, colour = "black", alpha = 0.75) 
@@ -83,7 +86,31 @@ oth_countries <- terrain +
 
 
 # Choropleths on top of basemaps ------------------------------------------
-source <- str_c("Author: Maps created by USAID GeoCenter     |     Source: National Administrative Department of Statistics of Colombia 2018")
+source <- str_c("Maps created by USAID GeoCenter     |     Data source: National Administrative Department of Statistics of Colombia 2018")
+
+theme_set(theme_minimal())
+map_clean <- theme(legend.position = "top",
+                            axis.text = element_blank(),
+                            panel.grid = element_blank(),
+                            axis.ticks = element_blank(),
+                            strip.text = element_text(hjust = 0))
+  
+
+basemap_color <- "#EEE7D7"
+
+# Basemap of Colombia for reference
+base_map <- oth_countries +
+  geom_sf(data = ne_colombia, aes(fill = Dept_geo), size = 0.25, colour = "#525252", alpha = 0.6) +
+  geom_sf(data = col_admin0, colour = "#525252", fill = "NA") +
+  geom_sf_text_repel(data = ne_colombia, aes(label = Dept_geo), colour = "black", size = 3) +
+  map_clean + theme(legend.position = "none") +
+  coord_sf(xlim = mapRange[c(1:2)], ylim = mapRange[c(3:4)]) 
+
+
+
+
+
+# Table 1 - TV ownership --------------------------------------------------
 
 tvs <- 
   ict$Table1 %>% 
@@ -92,6 +119,7 @@ tvs <-
   mutate(label_first = ifelse(tv_stat == "Televisión a color convencional (%)", Departmento, NA_character_),
          value = (value / 100)) 
 
+tv_maps <-   
   oth_countries + 
     geom_sf(data = tvs, 
             aes(fill = value, geometry = geometry), size = 0.25, colour = "white") +
@@ -99,20 +127,23 @@ tvs <-
     #geom_sf_label(data = tvs, aes(label = label_first, geometry = geometry), size = 2.5) +
     facet_wrap(~tv_stat) +
     scale_fill_viridis_c(option = "A", direction = -1, alpha = 0.6, label = scales::percent_format()) +
-    theme_minimal() +
-    theme(legend.position = "top",
-          axis.text = element_blank(),
-          panel.grid = element_blank(),
-          axis.ticks = element_blank(),
-          strip.text = element_text(hjust = 0)) +
+    map_clean +
     coord_sf(xlim = mapRange[c(1:2)], ylim = mapRange[c(3:4)]) +
     labs(x = "", y = "", title = "Table 1. TV Onwership by different types",
          caption = source,
          fill = "Percent of households owning") 
 
+ggsave(file.path(imagepath, "COL_tv_ownership.pdf"),
+       height = 8.5, width = 11, dpi = "retina", useDingbats = F)
 
 
-
+# Table 3 - Mobile phone ownership  ------
+cable <- 
+  ict$`Table 3` %>% 
+  gather(stat, value, 2:4) %>% 
+    left_join(., ne_colombia, by = c("Departmento")) %>% 
+  mutate(label_first = ifelse(stat == "Teléfono celular", Departmento, NA_character_),
+         value = (value / 100)) 
   
 
 
