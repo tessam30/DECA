@@ -1,7 +1,7 @@
 col_cw <- 
 tibble::tribble(
   ~DPTO_CCDGO,    ~ISO2,                                  ~Dept_geo,         ~Departmento,
-         "11", "CO_CUN",               "Distrito Capital de Bogotá",       "Bogotá, D.C.",
+         "11", "CO_DC",               "Distrito Capital de Bogotá",       "Bogotá, D.C.",
          "91", "CO_AMA",                                 "Amazonas",           "Amazonas",
          "05", "CO_ANT",                                "Antioquia",          "Antioquia",
          "81", "CO_ARA",                                   "Arauca",             "Arauca",
@@ -13,9 +13,9 @@ tibble::tribble(
          "85", "CO_CAS",                                 "Casanare",           "Casanare",
          "19", "CO_CAU",                                    "Cauca",              "Cauca",
          "20", "CO_CES",                                    "Cesar",              "Cesar",
-         "23", "CO_COR",                                  "Córdoba",              "Chocó",
-         "25", "CO_CUN",                             "Cundinamarca",            "Córdoba",
-         "27", "CO_CHO",                                    "Chocó",       "Cundinamarca",
+         "23", "CO_COR",                                  "Córdoba",            "Córdoba",
+         "25", "CO_CUN",                             "Cundinamarca",       "Cundinamarca",
+         "27", "CO_CHO",                                    "Chocó",              "Chocó",
          "94", "CO_GUA",                                  "Guainía",            "Guainía",
          "95", "CO_GUV",                                 "Guaviare",           "Guaviare",
          "41", "CO_HUI",                                    "Huila",              "Huila",
@@ -35,3 +35,5 @@ tibble::tribble(
          "97", "CO_VAU",                                   "Vaupés",             "Vaupés",
          "99", "CO_VID",                                  "Vichada",            "Vichada"
   )
+
+col_cw %>% count(Dept_geo, Departmento) %>% print(n = 35)
