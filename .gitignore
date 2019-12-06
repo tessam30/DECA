@@ -3,7 +3,7 @@
 .RData
 .Ruserdata
 
-
+Images
 Data
 .DS_Store
 *.twbr
@@ -20,5 +20,5 @@ GIS
 rosm.cache
 Documents 
 Dataout
-Images
+
 
