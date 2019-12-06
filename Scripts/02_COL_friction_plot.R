@@ -7,8 +7,8 @@
 # Dependencies ----------------------------------------------------- -------
 # Notes: This script requires objects created by the COL_ICT_maps script. Please run that script first
 source(file.path(rpath, "COL_ICT_maps.R"))
-
-pacman::p_load(raster, sf, rnaturalearth, rnaturalearthhires, rnaturalearthdata, ggspatial)
+devtools::install_github("clauswilke/ggtext")
+pacman::p_load(raster, sf, rnaturalearth, rnaturalearthhires, rnaturalearthdata, ggspatial, ggtext)
 
 
 
@@ -63,14 +63,17 @@ col_travel <-
   terrain  + 
   geom_tile(data = COL_travel_df %>% filter(travel > 0), aes(x = x, y = y, fill = travel)) +
   scale_fill_viridis_c(direction = -1, option = "B", na.value = "NA", alpha = 0.75, trans = "log") +
-  geom_sf(data = ne_colombia, colour = "white", fill = "NA", size = 0.25) +
+  #geom_sf(data = ne_colombia, colour = "white", fill = "NA", size = 0.25) +
+
   geom_sf(data = world_chop, fill = "#d9d9d9", alpha = 0.35, size = 0.25, colour = "#969696") +
   geom_sf(data = world_chop, fill = "NA", colour = "#f9f9f9", size = 0.5, alpha = 0.85) +
   geom_sf(data = col_admin0, colour = "white", fill = "NA", size = 0.9) +
   geom_sf(data = col_admin0, colour = "black", fill = "NA") +
+  geom_sf_text_repel(data = ne_cities %>% filter(sov0name == "Colombia", str_detect(featurecla, "Admin-0*")), 
+                     aes(label = name)) +
   #geom_sf_text_repel(data = ne_colombia, aes(label = Departmento)) +
   map_clean +
-  #theme(legend.position = "top") +
+  theme(legend.position = "none") +
   coord_sf(xlim = mapRange[c(1:2)], ylim = mapRange[c(3:4)]) +
   labs(x = "", y = "", 
        title = title,
