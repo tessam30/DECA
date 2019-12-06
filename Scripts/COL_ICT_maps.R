@@ -75,7 +75,7 @@ terrain <- ggplot() +
   geom_tile(data = filter(spdf, SR_LR < 210), aes(x = x, y = y, alpha = SR_LR)) +
   scale_alpha(name = "", range = c(0.6, 0), guide = F) +
   theme(legend.position = "none") +
-  geom_sf(data = ne_ocean_chop, fill = "aliceblue", colour = "NA") 
+  geom_sf(data = ne_ocean_chop, fill = "#d7ecff", colour = "NA") 
 
 oth_countries <- terrain + 
   geom_sf(data = world_chop, fill = "#d9d9d9", alpha = 0.35, size = 0.20, colour = "#252525") +
@@ -91,16 +91,24 @@ oth_countries_cities <- terrain +
                      aes(label = name)) +
   coord_sf(xlim = mapRange[c(1:2)], ylim = mapRange[c(3:4)]) 
 
+
+
 # Choropleths on top of basemaps ------------------------------------------
 source <- str_c("Maps created by USAID GeoCenter on ", today(), "     |     Data source: National Administrative Department of Statistics of Colombia 2018")
 
 theme_set(theme_minimal())
 map_clean <- theme(legend.position = "top",
+                   legend.justification='left',
                             axis.text = element_blank(),
                             panel.grid = element_blank(),
                             axis.ticks = element_blank(),
                             strip.text = element_text(hjust = 0))
   
+
+
+
+# Basemap of Admin 2 ------------------------------------------------------
+
 
 basemap_color <- "#EEE7D7"
 
@@ -126,7 +134,7 @@ base_map <-
 ggsave(file.path(imagepath, "COL_basemap_admin2.pdf"), plot = base_map,
        height = 11, width = 8.5, dpi = "retina", units = "in", useDingbats = F)
 
-# Helper function for joins ----------------------------------------------
+# Helper function for joins, maps and map saves----------------------------------------------
 
 join_ict <- function(df, filter) {
   df_long <- 
@@ -159,6 +167,10 @@ map_plot <- function(df, vircolor = "B", title = "") {
   return(p)
 }
 
+mapsave <- function(plot, name = ".pdf") {
+  ggsave(file.path(imagepath, name), plot = plot,
+         height = 11, width = 8.5, dpi = "retina", useDingbats = F)
+}
 
 
 
@@ -166,11 +178,10 @@ map_plot <- function(df, vircolor = "B", title = "") {
 # What is in the ICT list?
 purrr::map(ict, ~names(.))
 
-tvs <- join_ict(ict$Table1, filter = "Televisión a color convencional (%)")
-tv_maps <- map_plot(tvs, vircolor = "C", title = "Table 1. Television owernship by different types")
+join_ict(ict$Table1, filter = "Televisión a color convencional (%)") %>% 
+map_plot(., vircolor = "C", title = "Table 1. Television owernship by different types") %>% 
+  mapsave(., "COL_tv_ownership.pdf")
 
-ggsave(file.path(imagepath, "COL_tv_ownership.pdf"), plot = tv_maps,
-       height = 11, width = 8.5, dpi = "retina", useDingbats = F)
 
 # Bar graphs  
   # tvs %>% 
@@ -186,81 +197,67 @@ ggsave(file.path(imagepath, "COL_tv_ownership.pdf"), plot = tv_maps,
   #   
 
 # Table 3 - Mobile phone ownership  ------
-phone <- join_ict(ict$`Table 3`, filter = "Teléfono celular")
-phone_map <- map_plot(phone, vircolor = "A", title = "Mobile phone ownership")
-
-ggsave(file.path(imagepath, "COL_mobile_ownership.png"), plot = phone_map,
-       height = 11, width = 8.5, dpi = "retina") #useDingbats = F)
+join_ict(ict$`Table 3`, filter = "Teléfono celular") %>% 
+  map_plot(., vircolor = "A", title = "Mobile phone ownership") %>% 
+  mapsave(., "COL_mobile_ownership.pdf")
 
 
-# Table 4 - computer ownership
-computer <- join_ict(ict$`Table 4`, filter = "Computador portátil")
-comp_map <- map_plot(computer, vircolor = "D", title = "Computer ownership, by type")
+# Table 4 - computer ownership ----
+join_ict(ict$`Table 4`, filter = "Computador portátil") %>% 
+  map_plot(., vircolor = "D", title = "Computer ownership, by type") %>% 
+  mapsave(., "COL_computer_ownership.pdf")
 
-ggsave(file.path(imagepath, "COL_computer_ownership.pdf"), plot = comp_map,
-       height = 11, width = 8.5, dpi = "retina", useDingbats = F)
 
 # Table 5 - Internet connection ----
-internet <- join_ict(ict$`Table 5`, filter = "Hogares con Internet")
-int_map <- map_plot(internet, vircolor = "C", title = "Internet connection, by type")
+join_ict(ict$`Table 5`, filter = "Hogares con Internet") %>% 
+  map_plot(., vircolor = "C", title = "Internet connection, by type") %>% 
+  mapsave(., "COL_internet_connection.pdf")
 
-ggsave(file.path(imagepath, "COL_internet_connection.pdf"), plot = int_map,
-       height = 11, width = 8.5, dpi = "retina", useDingbats = F)
 
-# Table 6 - Radio use
-radio <- join_ict(ict$`Table 6`, filter = "Entretenimiento")
-radio_map <- map_plot(radio %>% filter(stat != "Otra"), vircolor = "D", title = "Radio use patterns")      
-
-ggsave(file.path(imagepath, "COL_radio_use.pdf"), plot = radio_map,
-       height = 11, width = 8.5, dpi = "retina", useDingbats = F)
+# Table 6 - Radio use ----
+radio <- join_ict(ict$`Table 6`, filter = "Entretenimiento") 
+map_plot(radio %>% filter(stat != "Otra"), vircolor = "D", title = "Radio use patterns") %>% 
+  mapsave(., "COL_radio_use.pdf")
 
 
 # Table 7 - Cell phone use reason -----
-mobile_use <- join_ict(ict$`Table 7`, filter = "Llamadas personales o familiares")
-mob_map <- map_plot(mobile_use, vircolor = "A", title = "Mobile phone use patterns")
+join_ict(ict$`Table 7`, filter = "Llamadas personales o familiares") %>% 
+  map_plot(., vircolor = "A", title = "Mobile phone use patterns") %>% 
+  mapsave(., "COL_mobile_use.pdf")
 
-ggsave(file.path(imagepath, "COL_mobile_use.pdf"), plot = mob_map,
-       height = 11, width = 8.5, dpi = "retina", useDingbats = F)
 
 # Table 8 - Computer use anywhere -----
-comp_use <- join_ict(ict$`Table 8`, filter = "Computador de Escritorio")
-comp_use_map <- map_plot(comp_use, vircolor = "D", title = "Computer use anywhere, by device type")
+join_ict(ict$`Table 8`, filter = "Computador de Escritorio") %>% 
+  map_plot(., vircolor = "D", title = "Computer use anywhere, by device type") %>% 
+  mapsave(., "COL_computer_use.pdf")
 
-ggsave(file.path(imagepath, "COL_computer_use.pdf"), plot = comp_use_map,
-       height = 11, width = 8.5, dpi = "retina", useDingbats = F)
 
 # Table 9 - Computer use by ability -----
-comp_lit <- join_ict(ict$`Table 9`, filter = "Copiar o mover un archivo o carpeta")
-comp_lit_map <- map_plot(comp_lit, vircolor = "D", title = "Computer use, by ability")
+join_ict(ict$`Table 9`, filter = "Copiar o mover un archivo o carpeta") %>% 
+  map_plot(., vircolor = "D", title = "Computer use, by ability") %>% 
+  mapsave(., "COL_computer_use_availability.pdf")
 
-ggsave(file.path(imagepath, "COL_computer_use_ability.pdf"), plot = mob_map,
-       height = 11, width = 8.5, dpi = "retina", useDingbats = F)
 
 # Table 10 - Internet usage ----
-internet_use <- join_ict(ict$`Table 10`, filter = "En el hogar")
-internet_use_map <- map_plot(internet_use, vircolor = "C", title = "Internet usage patterns")
-
-ggsave(file.path(imagepath, "COL_internet_usage.pdf"), plot = internet_use_map,
-       height = 11, width = 8.5, dpi = "retina", useDingbats = F)
+join_ict(ict$`Table 10`, filter = "En el hogar") %>% 
+  map_plot(., vircolor = "C", title = "Internet usage patterns") %>% 
+  mapsave(., "COL_internet_usage.pdf")
 
 
 # Table 11 - Internet usage by device type -----
-internet_use_device <- join_ict(ict$`Table 11`, filter = "Teléfono celular" )
-internet_use_device_map <- map_plot(internet_use_device, vircolor = "C", title = "Internet use, by device type")
+join_ict(ict$`Table 11`, filter = "Teléfono celular" ) %>% 
+  map_plot(., vircolor = "C", title = "Internet use, by device type") %>% 
+  mapsave(., "COL_internet_use_device.pdf")
 
-ggsave(file.path(imagepath, "COL_internet_use_device.pdf"), plot = internet_use_device_map,
-       height = 11, width = 8.5, dpi = "retina", useDingbats = F)
 
 # Table 12 - Internet use purpose -----
-int_use_purp <- join_ict(ict$`Table 12`, filter = "Redes Sociales")
-int_use_pur_map <- map_plot(int_use_purp, vircolor = "C", title = "Purpose of internet use")
+join_ict(ict$`Table 12`, filter = "Redes Sociales") %>% 
+map_plot(., vircolor = "C", title = "Purpose of internet use") %>% 
+  mapsave(., "COL_internet_use_purpose.pdf")
 
-ggsave(file.path(imagepath, "COL_internet_use_purpose.pdf"), plot = int_use_pur_map,
-       height = 11, width = 8.5, dpi = "retina", useDingbats = F)
 
 # Table 13 - No Internet reason -----
-no_internet <- join_ict(ict$`Table 13`, filter = "No sabe usarlo")
-no_internet_map <- map_plot(no_internet, vircolor = "C", title = "Main reason for not using internet")
+join_ict(ict$`Table 13`, filter = "No sabe usarlo") %>% 
+  map_plot(., vircolor = "C", title = "Main reason for not using internet") %>% 
+  mapsave(., "COL_no_internet_reason.pdf")
 
-ggsave(file.path(imagepath, "COL_no_internet_reason.pdf"), plot = no_internet_map,
-       height = 11, width = 8.5, dpi = "retina", useDingbats = F)

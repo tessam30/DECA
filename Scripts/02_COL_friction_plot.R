@@ -82,8 +82,8 @@ col_travel <-
 
 ggsave(file.path(imagepath, "COL_travel_surface_2015.pdf"),
        plot = col_travel,
-       height = 23.4,
-       width = 16.5,
+       height = 11,
+       width = 8.5,
        unit = "in",
        useDingbats = F,
        dpi = "retina")
