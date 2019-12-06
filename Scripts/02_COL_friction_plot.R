@@ -46,9 +46,9 @@ COL_travel_df <- as(COL_travel_rs, "SpatialPixelsDataFrame") %>% as.data.frame(.
 
 map_description <- c("This global accessibility map enumerates land-based travel time to the nearest densely-populated area for all areas between 85 degrees north and 60 degrees south for a nominal year 2015.")
 
-source <- str_c("Created by USAID GeoCenter on ", today(),  "     |     Source: A global map of travel time to cities to assess inequalities in accessibility in 2015: Accessibility to Cities")
-title <- c("Colombia Accessibility to Cities 2015")
-subtitle <- c("Each pixel in the  accessibility map represents the modeled shortest time from that location to a city.")
+source_acc <- str_c("Created by USAID GeoCenter on ", today(),  "     |     Source: A global map of travel time to cities to assess inequalities in accessibility in 2015: Accessibility to Cities")
+title_acc <- c("Colombia Accessibility to Cities 2015")
+subtitle_acc <- c("Each pixel in the  accessibility map represents the modeled shortest time from that location to a city.")
 
 
 
@@ -76,9 +76,9 @@ col_travel <-
   theme(legend.position = "none") +
   coord_sf(xlim = mapRange[c(1:2)], ylim = mapRange[c(3:4)]) +
   labs(x = "", y = "", 
-       title = title,
-       subtitle = subtitle,
-       caption = source)
+       title = title_acc,
+       subtitle = subtitle_acc,
+       caption = source_acc)
 
 ggsave(file.path(imagepath, "COL_travel_surface_2015.pdf"),
        plot = col_travel,
