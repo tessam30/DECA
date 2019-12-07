@@ -6,7 +6,7 @@
 
 # Dependencies ----------------------------------------------------- -------
 # Notes: This script requires objects created by the COL_ICT_maps script. Please run that script first
-source(file.path(rpath, "COL_ICT_maps.R"))
+#source(file.path(rpath, "COL_ICT_maps.R"))
 devtools::install_github("clauswilke/ggtext")
 pacman::p_load(raster, sf, rnaturalearth, rnaturalearthhires, rnaturalearthdata, ggspatial, ggtext)
 
@@ -46,17 +46,19 @@ COL_travel_df <- as(COL_travel_rs, "SpatialPixelsDataFrame") %>% as.data.frame(.
 
 map_description <- c("This global accessibility map enumerates land-based travel time to the nearest densely-populated area for all areas between 85 degrees north and 60 degrees south for a nominal year 2015.")
 
-source_acc <- str_c("Created by USAID GeoCenter on ", today(),  "     |     Source: A global map of travel time to cities to assess inequalities in accessibility in 2015: Accessibility to Cities")
+source_acc <- str_c("Created by USAID GeoCenter on ", today(),  "     |     Source: A global map of travel time to cities to assess inequalities in accessibility in 2015")
 title_acc <- c("Colombia Accessibility to Cities 2015")
 subtitle_acc <- c("Each pixel in the  accessibility map represents the modeled shortest time from that location to a city.")
 
 
+city_list <- c("Bogota", "Cali", "Medellín", "Barranquilla", "Panama City", "Quito", "Maracaibo", "Cartagena", "Bucaramanga", "San José del Guaviare", "Pasto")
+ne_cities_trunc <- ne_cities %>% filter(name %in% city_list, sov0name %in% c("Colombia", "Ecuador", "Panama"))
 
 # Plot friction surface and touch up map ----------------------------------
 
 # NOTES: If you want to get a feathered inner/outer glow you can use a series
 # of admin0s layered with different stroke thickness and color
-
+# filter(sov0name == "Colombia", str_detect(featurecla, "Admin-0*")
 
 
 col_travel <- 
@@ -69,23 +71,25 @@ col_travel <-
   geom_sf(data = world_chop, fill = "NA", colour = "#f9f9f9", size = 0.5, alpha = 0.85) +
   geom_sf(data = col_admin0, colour = "white", fill = "NA", size = 0.9) +
   geom_sf(data = col_admin0, colour = "black", fill = "NA") +
-  geom_sf_text_repel(data = ne_cities %>% filter(sov0name == "Colombia", str_detect(featurecla, "Admin-0*")), 
-                     aes(label = name)) +
+  geom_sf_label_repel(data = ne_cities_trunc, aes(label = name), alpha = 0.90, family = "SegoeUI") +
   #geom_sf_text_repel(data = ne_colombia, aes(label = Departmento)) +
   map_clean +
   theme(legend.position = "none") +
   coord_sf(xlim = mapRange[c(1:2)], ylim = mapRange[c(3:4)]) +
   labs(x = "", y = "", 
-       title = title_acc,
+       title = str_c("**",title_acc, "**"),
        subtitle = subtitle_acc,
-       caption = source_acc)
+       caption = source_acc) +
+  theme(text = element_text(family = "SegoeUI"),
+        legend.text = element_text(size = 7),
+        plot.title = element_markdown(),
+        plot.caption = element_text(hjust = 0))
 
-ggsave(file.path(imagepath, "COL_travel_surface_2015.pdf"),
+ggsave(file.path(imagepath, "COL_travel_surface_2015.png"),
        plot = col_travel,
        height = 11,
        width = 8.5,
        unit = "in",
-       useDingbats = F,
+       #device = cairo_pdf,
        dpi = "retina")
   
-
