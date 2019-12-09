@@ -105,6 +105,13 @@ oth_countries <- terrain +
 # geom_sf_text(data = world_chop, aes(label = sovereignt)) +
 # geom_sf(data = col_admin0, colour = "black", alpha = 0.75)
 
+
+oth_countries_small <- ggplot() +
+  geom_sf(data = ne_ocean_chop, fill = "#d7ecff", colour = "NA", alpha = 0.85) +
+  geom_sf(data = world_chop, fill = "#d9d9d9", alpha = 0.35, size = 0.20, colour = "#252525") +
+  coord_sf(xlim = mapRange[c(1:2)], ylim = mapRange[c(3:4)])
+  
+  
 # drops in cities for context
 oth_countries_cities <- terrain +
   geom_sf(data = world_chop, fill = "#d9d9d9", alpha = 0.35, size = 0.20, colour = "#252525") +
@@ -150,7 +157,7 @@ base_terrain <- oth_countries +
 
 ggsave(file.path(imagepath, "COL_basemap_terrain.pdf"),
   plot = base_terrain,
-  height = 11, width = 8.5, dpi = "retina", units = "in"
+  height = 11, width = 8.5, dpi = "screen", units = "in"
 )
 
 # Create a custom color palette for the 33 Departments
@@ -175,7 +182,7 @@ geom_sf(data = ne_colombia, aes(fill = Departmento), size = 0.5, colour = "#5252
 
 ggsave(file.path(imagepath, "COL_basemap_admin2.png"),
   plot = base_map,
-  height = 11, width = 8.5, dpi = 600, units = "in" #device = cairo_pdf
+  height = 11, width = 8.5, units = "in" #device = cairo_pdf
 )
 
 # Helper function for joins, maps and map saves----------------------------------------------
@@ -200,7 +207,8 @@ join_ict <- function(df, filter) {
 # requires a data.frame, viridis color palette and a map title
 map_plot <- function(df, vircolor = "B", title = "") {
   p <-
-    oth_countries +
+    oth_countries + # This may produce a large map due to the raster data; another option below
+    #oth_countries_small +
     geom_sf(
       data = df,
       aes(fill = value, geometry = geometry), size = 0.25, colour = "white"
