@@ -10,7 +10,7 @@ source(file.path("Scripts/00_setup.R"))
 pacman::p_load(
   "raster", "sp", "rgdal", "rmapshaper", "geojsonio", "rnaturalearth",
   "rnaturalearthdata", "ggsflabel", "tidytext", "ggtext", "extrafont", "extrafontdb",
-  "formattable"
+  "formattable", "RColorBrewer"
 )
 
 
@@ -148,25 +148,34 @@ base_terrain <- oth_countries +
   map_clean +
   labs(x = "", y = "", caption = str_c("Created by USAID GeoCenter on ", today()))
 
-ggsave(file.path(imagepath, "COL_basemap_admin2.png"),
+ggsave(file.path(imagepath, "COL_basemap_terrain.pdf"),
   plot = base_terrain,
   height = 11, width = 8.5, dpi = "retina", units = "in"
 )
 
+# Create a custom color palette for the 33 Departments
+dept_colors <- colorRampPalette(RColorBrewer::brewer.pal(12,"Set3"))(33)
+palette(colorRampPalette(brewer.pal(12,"Set3"))(30))
+plot(1:30, 1:30, col = 1:30, pch = 19, cex = 5)
+
 base_map <-
-  ggplot() +
-  geom_sf(data = ne_colombia, fill = "#EEE7D7", size = 0.25, colour = "#525252", alpha = 0.6) +
-  geom_sf_text_repel(data = ne_colombia, aes(label = Dept_geo), colour = "black", size = 3) +
+  base_terrain +
+geom_sf(data = ne_colombia, aes(fill = Departmento), size = 0.5, colour = "#525252", alpha = 0.5) +
+  scale_fill_manual(values = dept_colors) +
   geom_sf(data = col_admin0, colour = "white", fill = "NA", size = 1) +
   geom_sf(data = col_admin0, colour = "black", fill = "NA", size = 0.5) +
+  geom_sf_label_repel(data = ne_colombia, aes(label = Dept_geo), colour = "black", size = 2.5) +
   map_clean + theme(legend.position = "none", text = element_text(family = "SegoeUI"))  +
   coord_sf(xlim = mapRange[c(1:2)], ylim = mapRange[c(3:4)]) +
-  labs(x = "", y = "", caption = str_c("Created by USAID GeoCenter on ", today()))
+  labs(x = "", y = "", caption = str_c("Created by USAID GeoCenter on ", today()),
+       title = str_c("**", "Administrative Departments of Colombia","**")) +
+  theme(plot.title = element_markdown() 
+       )
 
 
-ggsave(file.path(imagepath, "COL_basemap_admin2.pdf"),
+ggsave(file.path(imagepath, "COL_basemap_admin2.png"),
   plot = base_map,
-  height = 11, width = 8.5, dpi = "retina", units = "in", device = cairo_pdf
+  height = 11, width = 8.5, dpi = 600, units = "in" #device = cairo_pdf
 )
 
 # Helper function for joins, maps and map saves----------------------------------------------
@@ -215,9 +224,9 @@ map_plot <- function(df, vircolor = "B", title = "") {
 
 # Helper to shorten the ggsave call and reduce cut and pasting ggsave parameters. They are fixed for all maps.
 mapsave <- function(plot, name = "needname") {
-  ggsave(file.path(imagepath, str_c(name, ".png")),
+  ggsave(file.path(imagepath, str_c(name, ".pdf")),
     plot = plot,
-    height = 11, width = 8.5, dpi = "retina"#, device = cairo_pdf
+    height = 11, width = 8.5, dpi = "retina", device = cairo_pdf
   )
 }
 
@@ -276,8 +285,9 @@ join_ict(ict$`Table 5`, filter = "Hogares con Internet") %>%
 
 # Table 6 - Radio use ----
 join_ict(ict$`Table 6`, filter = "Entretenimiento") %>% 
-  filter(stat!= "Otra") %>% 
-  map_plot(., vircolor = "D", title = "Radio use patterns")
+  filter(stat != "Otra") %>% 
+  map_plot(., vircolor = "D", title = "Radio use patterns") %>% 
+  mapsave(., "COL_radio_use")
 
 # map_plot(radio %>% filter(stat != "Otra"), vircolor = "D", title = "Radio use patterns") %>%
 #   mapsave(., "COL_radio_use.pdf")
@@ -323,3 +333,5 @@ join_ict(ict$`Table 12`, filter = "Redes Sociales") %>%
 join_ict(ict$`Table 13`, filter = "No sabe usarlo") %>%
   map_plot(., vircolor = "C", title = "Main reason for not using internet") %>%
   mapsave(., "COL_no_internet_reason")
+
+
