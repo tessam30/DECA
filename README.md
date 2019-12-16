@@ -1,6 +1,7 @@
 # DECA
 holding grounds for all things deca related  
 
+<p><img src="https://user-images.githubusercontent.com/5873344/70911361-c0bcfb00-1fdf-11ea-81a1-20ded0082eb5.PNG" align="middle"></p>
 
 ---  
 
